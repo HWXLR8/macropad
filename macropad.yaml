@@ -59,11 +59,19 @@ pcbs:
         params:
           from: "{{colrow}}"
           to: "{{row_net}}"
-      rotary:
+      rotary1:
         what: rotary
         params:
-          from: D7
-          to: E6
-          A: B4
-          B: B5
+          from: P19
+          to: GND
+          A: P16
+          B: P10
+          C: GND
+      rotary2:
+        what: rotary
+        params:
+          from: P18
+          to: GND
+          A: P15
+          B: P14
           C: GND
