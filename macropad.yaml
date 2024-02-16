@@ -1,0 +1,69 @@
+units:
+  mm: 1
+
+points:
+  zones:
+    matrix:
+      columns:
+        left:
+          key:
+            column_net: P6
+        middle:
+          key:
+            column_net: P7
+        right:
+          key:
+            column_net: P8
+      rows:
+        bottom:
+          row_net: P5
+        lower-mid:
+          row_net: P4
+        upper-mid:
+          row_net: P3
+        top:
+          row_net: P2
+
+outlines:
+  raw:
+    - what: rectangle
+      where: true
+      size: [1.2cx, 1.2cy]
+  pcb_cutout:
+    - what: outline
+      name: raw
+
+pcbs:
+  macro_pad:
+    outlines:
+      main:
+        outline: pcb_cutout
+    footprints:
+      keys:
+        what: mx
+        where: true
+        params:
+          from: "{{colrow}}"
+          to: "{{column_net}}"
+          keycaps: true
+      mcu:
+        what: promicro
+        params:
+          orientation: up
+      diode:
+        what: diode
+        where: true
+        adjust:
+          rotate: 0
+          shift: [0, -4.5]
+        params:
+          from: "{{colrow}}"
+          to: "{{row_net}}"
+      rotary:
+        what: rotary
+        params:
+          from: D7
+          to: E6
+          A: B4
+          B: B5
+          C: GND
