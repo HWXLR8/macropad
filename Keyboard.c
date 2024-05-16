@@ -58,41 +58,6 @@ int main(void)
 
 	GlobalInterruptEnable();
 
-	// setup matrix
-	uint8_t num_rows = 4;
-	uint8_t num_cols = 6;
-	matrix.num_rows = num_rows;
-	matrix.num_cols = num_cols;
-	pin_t rows[4] = {d1, d0, d4, c6};
-	pin_t cols[6] =	{b2, b5, b4, e6, d7, b6};
-	for (int i = 0; i < num_rows; ++i) {
-	  matrix.rows[i] = rows[i];
-	}
-	for (int i = 0; i < num_cols; ++i) {
-	  matrix.cols[i] = cols[i];
-	}
-
-	// set all rows at outputs
-	DDRD |= _BV(1);
-	DDRD |= _BV(0);
-	DDRD |= _BV(4);
-	DDRC |= _BV(6);
-	// enable pull-up on all rows
-	for (uint8_t i = 0; i < matrix.num_rows; ++i) {
-	  setPinHigh(matrix.rows[i]);
-	}
-	// set all columns as inputs
-	DDRB &= ~_BV(2); // B2
-	DDRB &= ~_BV(5); // B5
-	DDRB &= ~_BV(4); // B4
-	DDRE &= ~_BV(6); // E6
-	DDRD &= ~_BV(7); // D7
-	DDRB &= ~_BV(6); // B6
-	// enable pull-up on all columns
-	for (uint8_t i = 0; i < matrix.num_cols; ++i) {
-	  setPinHigh(matrix.cols[i]);
-	}
-
 	// init encoder pins
 	DDRF &= ~(1 << 6); // F6 as input
 	PORTF |= (1 << 6); // F6 as high
@@ -100,13 +65,8 @@ int main(void)
 	PORTF |= (1 << 7); // F7 as high
 
 	for (;;) {
-	  for (uint8_t i = 0; i < matrix.num_rows; ++i) {
-	    /* setPinLow(matrix.rows[i]); */
-	    /* matrix.active_col = i; */
 	    HID_Device_USBTask(&Keyboard_HID_Interface);
 	    USB_USBTask();
-	    /* setPinHigh(matrix.rows[i]); */
-	  }
 	}
 }
 
@@ -181,23 +141,16 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          uint16_t* const ReportSize)
 {
 	USB_KeyboardReport_Data_t* KeyboardReport = (USB_KeyboardReport_Data_t*)ReportData;
-
 	uint8_t UsedKeyCodes = 0;
-	uint8_t offset = matrix.active_col * matrix.num_cols;
-	// check columns one at a time to determine which key is pressed
-	/* for (uint8_t i = 0; i < matrix.num_cols; ++i) { */
-	/*   if (isPinLow(matrix.cols[i])) { */
-	/*     KeyboardReport->KeyCode[UsedKeyCodes++] = layout[i+offset]; */
-	/*   } */
-	/* } */
 
-	// encoder 1
+	// encoder 1 push button
 	if (!(PINF & (1 << 6))) {
 	  KeyboardReport->KeyCode[UsedKeyCodes++] = K_H;
-	} else if (!(PINF & (1 << 7))) {
+	}
+	// encoder 2 push button
+	if (!(PINF & (1 << 7))) {
 	  KeyboardReport->KeyCode[UsedKeyCodes++] = K_I;
 	}
-
 	/* if (UsedKeyCodes) */
 	/*   KeyboardReport->Modifier = HID_KEYBOARD_MODIFIER_LEFTSHIFT; */
 
